@@ -1,94 +1,105 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
-    android:layout_height="fill_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    android:layout_margin="20dp">
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/fivecoin"
-        android:layout_alignParentTop="false"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentBottom="false"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal">
-
-        <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="177dp"
-        android:id="@+id/imageButton2"
-        android:src="@drawable/fiveupee"
-        android:gravity="center_vertical"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentLeft="false"
-        android:id="@+id/givearea"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_above="@+id/othercoins"
-        android:layout_below="@+id/fivecoin"
-        android:gravity="center_horizontal"
-        android:weightSum="1">
-
-        <EditText
-        android:layout_width="188dp"
-        android:layout_height="126dp"
-        android:inputType="number"
-        android:ems="10"
-        android:id="@+id/editText"
-        android:background="#ffff9715"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
-            android:layout_below="@+id/fivecoin"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:text="0"
-            android:textColor="#fff2f2ff"
-            android:textSize="72dp"
-            android:textIsSelectable="true"
-            android:layout_gravity="center" />
-    </LinearLayout>
+        android:layout_gravity="center"
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|bottom"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentEnd="true"
-        android:weightSum="1"
-        android:id="@+id/othercoins"
-        android:gravity="center_horizontal">
+
+        >
 
         <ImageView
-            android:layout_width="103dp"
-            android:layout_height="98dp"
-            android:id="@+id/imageView"
-            android:layout_gravity="center"
-            android:src="@drawable/onerupeenew" />
+            android:id="@+id/imageButton2"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="@drawable/fiveupee"
 
-        <ImageView
-        android:layout_width="66dp"
-        android:layout_height="169dp"
-        android:id="@+id/imageView2"
-        android:layout_gravity="center|right"
-        android:src="@drawable/tworupees"
-        android:layout_weight="0.33"
-            android:layout_marginLeft="10dp" />
+            />
+
         </LinearLayout>
 
 
-</RelativeLayout>
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+android:layout_gravity="center"
+            >
+
+            <ImageView
+                android:id="@+id/transferImg"
+                android:layout_width="fill_parent"
+                android:layout_height="250dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/coinmoney"
+                android:layout_marginLeft="60dp"
+                android:layout_marginRight="60dp"/>
+
+            <TextView
+                android:id="@+id/textview"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+              android:layout_marginTop="17dp"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+android:text="0"
+                android:textSize="25dp"
+                android:gravity="center"
+                />
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+     >
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@drawable/onerupee"/>
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/tworupees"
+            android:layout_marginLeft="20dp"/>
+
+
+    </LinearLayout>
+
+
+
+</LinearLayout>
