@@ -1,5 +1,7 @@
 package gulak.chittyalpha;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -25,27 +27,68 @@ import android.view.LayoutInflater;
 import android.app.AlertDialog;
 import android.view.View.OnClickListener;
 import android.content.DialogInterface;
-
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import java.util.concurrent.atomic.AtomicInteger;
+import android.content.SharedPreferences;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import gulak.util.PushTransaction;
+import android.os.AsyncTask;
+import java.io.IOException;
 
 public class MainActivity extends ActionBarActivity {
 
 private ImageView tv;
+    public static final String EXTRA_MESSAGE = "message";
+    public static final String PROPERTY_REG_ID = "registration_id";
+    private static final String PROPERTY_APP_VERSION = "appVersion";
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+    GoogleCloudMessaging gcm;
+    AtomicInteger msgId = new AtomicInteger();
+    SharedPreferences prefs;
+    Context context;
+
+    String regid=new String();
+    String phNumber=new String();
+    String chittyVal=new String();
+    EditText toPhone;
+    // This is Same as google his is the project number we got
+    //from the API Console, as described in "Getting Started."
+    String SENDER_ID = "922750456515";
+    static final String TAG = "ChittyApp";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle bundle = getIntent().getExtras();
+        regid = bundle.getString("regid");
+        phNumber=bundle.getString("myPhone");
+        System.out.println("Main Activity Got Regid from Bundle : " + regid);
+        context = getApplicationContext();
+        if(checkPlayServices())
+            Log.i("Chitty App" , " Got Play servces");
         setContentView(R.layout.activity_main);
-        tv=(ImageView)findViewById(R.id.transferImg);
-        tv.setOnClickListener(new OnClickListener() {
 
-            @Override
-            public void onClick(View view) {
-                showInputDialog();
+            if (regid.isEmpty()) {
+                Toast.makeText(this,"Not Registered ...",Toast.LENGTH_LONG).show();
+                finish();
             }
-        });
-        findViewById(R.id.imageView).setOnTouchListener(new MyTouchOne());
-        findViewById(R.id.imageButton2).setOnTouchListener(new MyTouchFive());
-        findViewById(R.id.imageView2).setOnTouchListener(new MyTouchTwo());
-        findViewById(R.id.transferImg).setOnDragListener(new MyDragListener());
+            tv = (ImageView) findViewById(R.id.transferImg);
+            tv.setOnClickListener(new OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    showInputDialog();
+                }
+            });
+            findViewById(R.id.imageView).setOnTouchListener(new MyTouchOne());
+            findViewById(R.id.imageButton2).setOnTouchListener(new MyTouchFive());
+            findViewById(R.id.imageView2).setOnTouchListener(new MyTouchTwo());
+            findViewById(R.id.transferImg).setOnDragListener(new MyDragListener());
+
     }
 
     protected void showInputDialog(){
@@ -56,12 +99,25 @@ private ImageView tv;
         alertDialogBuilder.setView(promptView);
         TextView chittyText = (TextView)findViewById(R.id.textview);
         alertDialogBuilder.setTitle("Chitty Points : " + chittyText.getText());
-
+        chittyVal= chittyText.getText().toString();
+        toPhone=(EditText)promptView.findViewById(R.id.toPhone);
         //final EditText editText = (EditText) promptView.findViewById(R.id.editText2);
         // setup a dialog window
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(getApplicationContext(), "Transfering" , Toast.LENGTH_SHORT).show();
+                        PushTransaction pu = new PushTransaction();
+                        try {
+
+                            pu.execute(phNumber,toPhone.getText().toString(),chittyVal);
+                            Toast.makeText(getApplicationContext(), "done transfer" , Toast.LENGTH_SHORT).show();
+                            TextView myValText = (TextView)findViewById(R.id.textview);
+                            myValText.setText("0");
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         //editText.setText("Hello");
                     }
                 })
@@ -174,12 +230,59 @@ private ImageView tv;
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        // Handle presses on the action bar items
+        switch (id) {
+            case R.id.action_mychitty:
+                openMyChitiys();
+                return true;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
+
+    }
+
+    private void openMyChitiys() {
+        Intent myChittysActivityIntent= new Intent(MainActivity.this,MyChittyActivity.class);
+        myChittysActivityIntent.putExtra("regid",regid);
+        myChittysActivityIntent.putExtra("myPhone",phNumber);
+        startActivity(myChittysActivityIntent);
+    }
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+
+
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                Log.i("ChittyApp","No Play Service");
+                //GooglePlayServicesUtil.getErrorDialog(resultCode, context, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i("ChittyApp","No Play Service");
+
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @return Application's version code from the {@code PackageManager}.
+     */
+    private static int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            // should never happen
+            throw new RuntimeException("Could not get package name: " + e);
+        }
     }
 }

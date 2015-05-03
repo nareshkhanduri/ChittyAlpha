@@ -20,6 +20,6 @@
         android:layout_height="wrap_content"
         android:inputType="phone"
         android:ems="10"
-        android:id="@+id/editText2"
+        android:id="@+id/toPhone"
         android:layout_gravity="center" />
 </LinearLayout>
