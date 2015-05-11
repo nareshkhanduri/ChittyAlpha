@@ -26,12 +26,11 @@ public class RegisterActivity extends ActionBarActivity implements RegisterAsync
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        btnRegister = (Button) findViewById(R.id.btnReg);
         phonerNumber=(EditText)findViewById(R.id.etRegPhNumber);
         password = (EditText)findViewById(R.id.etRegPass);
         rePassword=(EditText)findViewById(R.id.etRegPass2);
         chittyId=(EditText)findViewById(R.id.etChittyId);
-
+        btnRegister = (Button) findViewById(R.id.btnReg);
         btnRegister.setOnClickListener(new View.OnClickListener(){
 
             public void onClick(View view) {

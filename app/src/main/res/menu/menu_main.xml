@@ -5,6 +5,10 @@
         android:icon="@drawable/goldcoin"
         android:title="My Chittys"
          />
+    <item android:id="@+id/action_logout"
+        android:icon="@drawable/goldcoin"
+        android:title="Logout"
+        />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>

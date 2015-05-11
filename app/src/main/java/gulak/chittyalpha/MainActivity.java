@@ -235,6 +235,9 @@ private ImageView tv;
             case R.id.action_mychitty:
                 openMyChitiys();
                 return true;
+            case R.id.action_logout:
+                logout();
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -248,6 +251,14 @@ private ImageView tv;
         myChittysActivityIntent.putExtra("regid",regid);
         myChittysActivityIntent.putExtra("myPhone",phNumber);
         startActivity(myChittysActivityIntent);
+    }
+
+    public void logout(){
+        Intent myChittysActivityIntent= new Intent(MainActivity.this,LoginActivity.class);
+        myChittysActivityIntent.putExtra("regid","");
+        myChittysActivityIntent.putExtra("myPhone","");
+        startActivity(myChittysActivityIntent);
+
     }
 
     /**

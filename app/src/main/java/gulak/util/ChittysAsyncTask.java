@@ -2,7 +2,6 @@ package gulak.util;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,57 +12,50 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import gulak.chittyalpha.MainActivity;
 import gulak.chittyalpha.LoginActivity;
 
 /**
- * Created by naresh on 4/30/15.
+ * Created by naresh on 5/5/15.
  */
-public class LoginAsyncTask extends AsyncTask<String, Integer, String> {
+public class ChittysAsyncTask extends AsyncTask<String, Integer, String> {
 
     final String USER_AGENT = "Mozilla/5.0";
-    boolean testing = false;
     StringBuffer resp=null;
     private ProgressDialog dialog;
     private LoginActivity activity;
     private Context context;
-    DoLogin myDoLoginCallBack;
-    String regid;
-    public interface DoLogin {
+    DoChittys myDoChittysCallBack;
+    String allrows;
+
+    public interface DoChittys {
         void doInBackground();
-        void doPostExecute(String regestrationId);
+        String doPostExecute(String result);
     }
 
-    public LoginAsyncTask(DoLogin callback) {
-        myDoLoginCallBack=callback;
-    }
-
-    @Override
-    protected void onPreExecute() {
-
+    public ChittysAsyncTask(DoChittys callback) {
+        myDoChittysCallBack=callback;
     }
 
     protected  String doInBackground(String... params) {
 
-        myDoLoginCallBack.doInBackground();
-        String url = "https://intense-plateau-9455.herokuapp.com/login";
+        myDoChittysCallBack.doInBackground();
+        boolean testing =false;
         URL obj = null;
+        String url = "https://intense-plateau-9455.herokuapp.com/mychittys";
+        HttpsURLConnection con;
+        String userPhone = params[0];
+        String urlParameters = "userPhone=" + userPhone;
+        Log.i("Chitty App Trans", urlParameters);
+        System.out.println("\nSending 'POST' request to URL : " + url);
+        // Send post request
         if (!testing) {
             try {
                 obj = new URL(url);
-
-                HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-                String userPhone = params[0];
-                String pwd = params[1];
+                con = (HttpsURLConnection) obj.openConnection();
                 //add reuqest header
                 con.setRequestMethod("POST");
                 con.setRequestProperty("User-Agent", USER_AGENT);
                 con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-                //myDoSomethingCallBack.doInBackground(10);
-                String urlParameters = "fromPhone=" + userPhone + "&pwd=" + pwd;
-                Log.i("Chitty App Login", urlParameters);
-                System.out.println("\nSending 'POST' request to URL : " + url);
-                // Send post request
                 con.setDoOutput(true);
 
                 DataOutputStream wr = new DataOutputStream(con.getOutputStream());
@@ -72,7 +64,7 @@ public class LoginAsyncTask extends AsyncTask<String, Integer, String> {
                 wr.close();
                 int responseCode = con.getResponseCode();
                 //myDoSomethingCallBack.doInBackground(50);
-                System.out.println("\n Login 'POST' request to URL : " + url);
+                System.out.println("\n Get chittys 'POST' request to URL : " + url);
                 System.out.println("Post parameters : " + urlParameters);
                 System.out.println("Response Code : " + responseCode);
                 BufferedReader in = new BufferedReader(
@@ -84,21 +76,23 @@ public class LoginAsyncTask extends AsyncTask<String, Integer, String> {
                     resp.append(inputLine);
                 }
                 in.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("Response for Trans : " + resp.toString());
+
+
+            } catch (Exception ex) {
+
             }
-        } else
-            resp = new StringBuffer("test****adfadfasdfyayiyauigyiu");
-        //print result
-        System.out.println("Hello : " + resp);
-        regid=resp.toString();
-        return new String(resp.toString());
+        }else
+            resp = new StringBuffer("[{\"fromphone\":\"9686570587\",\"tophone\":\"9008428674\",\"lat\":\"54.32\",\"long\":\"73.34\",\"chittyval\":8,\"chittytoken\":null,\"id\":2},{\"fromphone\":\"9686570587\",\"tophone\":\"9008428674\",\"lat\":\"54.32\",\"long\":\"73.34\",\"chittyval\":5,\"chittytoken\":null,\"id\":2}]");
+        allrows = resp.toString();
+        return resp.toString();
+
     }
+
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        myDoLoginCallBack.doPostExecute(regid);
+        myDoChittysCallBack.doPostExecute(allrows);
 
     }
-
 }
