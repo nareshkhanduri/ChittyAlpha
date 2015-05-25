@@ -105,7 +105,7 @@ public class RegisterAsyncTask extends AsyncTask<String, Integer, String> {
 
                 String urlParameters = "userPhone=" + userPhone + "&pwd=" + pwd + "&chittyId=" + chittyId + "&email=" + userEmail + "&lat=" + lat + "&long=" + strlong + "&deviceid=" + deviceId + "&key=" + key + "&regid=" + regsid;
 
-                Log.i("Chitty App Login", urlParameters);
+                Log.i("Chitty App Register", urlParameters);
                 System.out.println("\nSending 'POST' request to URL : " + url);
                 // Send post request
                 con.setDoOutput(true);
@@ -116,7 +116,7 @@ public class RegisterAsyncTask extends AsyncTask<String, Integer, String> {
                 wr.close();
                 int responseCode = con.getResponseCode();
                 //myDoSomethingCallBack.doInBackground(50);
-                System.out.println("\n Login 'POST' request to URL : " + url);
+                System.out.println("\n Register 'POST' request to URL : " + url);
                 System.out.println("Post parameters : " + urlParameters);
                 System.out.println("Response Code : " + responseCode);
                 BufferedReader in = new BufferedReader(
@@ -135,7 +135,16 @@ public class RegisterAsyncTask extends AsyncTask<String, Integer, String> {
             }
 
         }//print result
+
         System.out.println("Hello : " + resp.toString());
+
+        // See if there was error while registring if response is "0" then there is error
+        if (resp.toString().equalsIgnoreCase("0"))
+            regid=resp.toString();
+
+        // See if there was error while registring if response is "2" then user already exists
+        if (resp.toString().equalsIgnoreCase("2"))
+            regid=resp.toString();
 
         return new String(regid);
     }

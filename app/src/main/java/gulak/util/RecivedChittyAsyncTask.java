@@ -15,30 +15,32 @@ import javax.net.ssl.HttpsURLConnection;
 import gulak.chittyalpha.LoginActivity;
 
 /**
- * Created by naresh on 5/5/15.
+ * Created by naresh on 5/14/15.
  */
-public class ChittysAsyncTask extends AsyncTask<String, Integer, String> {
+public class RecivedChittyAsyncTask extends AsyncTask<String, Integer, String> {
 
     final String USER_AGENT = "Mozilla/5.0";
     StringBuffer resp=null;
     private ProgressDialog dialog;
     private LoginActivity activity;
     private Context context;
-    DoChittys myDoChittysCallBack;
+    DoRecivedChittys myDoChittysCallBack;
     String allrows;
 
-    public interface DoChittys {
-        void doInBackground();
-        String doPostExecute(String result);
+    public interface DoRecivedChittys {
+
+
+        String doPostRecivedExecute(String result);
     }
 
-    public ChittysAsyncTask(DoChittys callback) {
+    public RecivedChittyAsyncTask(DoRecivedChittys callback) {
         myDoChittysCallBack=callback;
     }
 
     protected  String doInBackground(String... params) {
 
-        myDoChittysCallBack.doInBackground();
+
+
         boolean testing =false;
         URL obj = null;
         String url = "https://intense-plateau-9455.herokuapp.com/mychittys";
@@ -93,7 +95,7 @@ public class ChittysAsyncTask extends AsyncTask<String, Integer, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        myDoChittysCallBack.doPostExecute(allrows);
+        myDoChittysCallBack.doPostRecivedExecute(allrows);
 
     }
 }

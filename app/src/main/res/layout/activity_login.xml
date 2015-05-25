@@ -8,8 +8,15 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity"
-
     android:background="@drawable/background">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/logScrollView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" >
 
     <LinearLayout
         android:orientation="vertical"
@@ -33,19 +40,23 @@
             android:id="@+id/etUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#fffffefc"
+            android:background="@drawable/round_corner"
             android:padding="10dp"
+            android:singleLine="true"
             android:hint="Phone Number"
+            android:imeOptions="actionNext"
             android:textColorHint="#cccccc"
-            />
+            android:inputType="number"
+            android:elegantTextHeight="true" />
         <EditText
             android:id="@+id/etPass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#ffffffff"
+            android:background="@drawable/round_corner"
             android:layout_marginTop="5dp"
             android:padding="10dp"
             android:hint="Password"
+            android:singleLine="true"
             android:textColorHint="#cccccc"
             android:password="true"
             />
@@ -100,6 +111,6 @@
         </LinearLayout>
     </LinearLayout>
 
-
+</ScrollView>
 
 </RelativeLayout>

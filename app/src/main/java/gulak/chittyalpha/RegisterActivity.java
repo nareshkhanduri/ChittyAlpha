@@ -9,10 +9,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
 
+import gulak.util.AppStatus;
 import gulak.util.RegisterAsyncTask;
-
+import android.view.View.OnClickListener;
+import android.content.DialogInterface;
 
 public class RegisterActivity extends ActionBarActivity implements RegisterAsyncTask.DoRegister {
     private Button btnRegister ;
@@ -38,21 +42,37 @@ public class RegisterActivity extends ActionBarActivity implements RegisterAsync
                 String pass= password.getText().toString();
                 String rePass=rePassword.getText().toString();
                 String chittyIdStr= chittyId.getText().toString();
-                if (phNumber.trim().length() > 0 && pass.trim().length() > 0 && chittyIdStr.trim().length()>0) {
 
-                    myAsyncTask = new RegisterAsyncTask(RegisterActivity.this);
-                    myAsyncTask.execute(phNumber,pass,chittyIdStr);
-                    progressDialog = ProgressDialog.show(RegisterActivity.this, "Chitty App", "Registering...");
+                    if (phNumber.trim().length() > 0 && pass.trim().length() > 0 && chittyIdStr.trim().length() > 0) {
+                        if (AppStatus.getInstance(getApplicationContext()).isOnline()) {
+                        myAsyncTask = new RegisterAsyncTask(RegisterActivity.this);
+                        myAsyncTask.execute(phNumber, pass, chittyIdStr);
+                        progressDialog = ProgressDialog.show(RegisterActivity.this, "Parchi App", "Registering...");
+                        } else
 
-                } else{
-                    Toast.makeText(getApplicationContext(),
-                            "Please enter All details to Register ...", Toast.LENGTH_LONG)
-                            .show();
-                }
+                            Toast.makeText(getApplicationContext(),
+                                    "Not Network Access, Please check your Internet Connection", Toast.LENGTH_LONG)
+                                    .show();
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                "Please enter All details to Register ...", Toast.LENGTH_LONG)
+                                .show();
+                    }
+
 
             }
 
         });
+
+        TextView loginBack= (TextView) findViewById(R.id.regBackLogin);
+        loginBack.setOnClickListener(new View.OnClickListener(){
+                                        public void onClick(View v){
+                                            Intent loginAct = new Intent(getApplicationContext(),LoginActivity.class);
+                                            startActivity(loginAct);
+                                        }
+                                    }
+
+        );
     }
 
 
@@ -87,11 +107,45 @@ public class RegisterActivity extends ActionBarActivity implements RegisterAsync
     @Override
     public String doPostExecute(String result) {
         progressDialog.dismiss();
-        Intent loginActivityIntent= new Intent(RegisterActivity.this,LoginActivity.class);
-        startActivity(loginActivityIntent);
-        System.out.println("Got Reg id in Register Activity" + result);
+        System.out.println( " Register Post Activity " + result);
         if(result.isEmpty())
             finish();
+        if(!result.isEmpty()) {
+            if(!result.equalsIgnoreCase("0") && !result.equalsIgnoreCase("2")) {
+                System.out.println( " Redirecting to Login " + result);
+                Intent loginActivityIntent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(loginActivityIntent);
+            }
+            if(result.equalsIgnoreCase("0"))
+                new AlertDialog.Builder(RegisterActivity.this)
+                        .setCancelable(false)
+                        .setTitle("Error")
+                        .setMessage("Error While Registring")
+                        .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                })
+                        .create()
+                        .show();
+            if (result.equalsIgnoreCase("2"))
+                new AlertDialog.Builder(RegisterActivity.this)
+                        .setCancelable(false)
+                        .setTitle("Already Registered")
+                        .setMessage("User Already Registered")
+                        .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                })
+                        .create()
+                        .show();
+            System.out.println("Got Reg id in Register Activity" + result);
+        }
         return result;
     }
 }

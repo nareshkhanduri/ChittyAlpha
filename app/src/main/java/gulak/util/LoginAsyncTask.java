@@ -28,7 +28,7 @@ public class LoginAsyncTask extends AsyncTask<String, Integer, String> {
     private LoginActivity activity;
     private Context context;
     DoLogin myDoLoginCallBack;
-    String regid;
+    String userRow;
     public interface DoLogin {
         void doInBackground();
         void doPostExecute(String regestrationId);
@@ -90,14 +90,14 @@ public class LoginAsyncTask extends AsyncTask<String, Integer, String> {
         } else
             resp = new StringBuffer("test****adfadfasdfyayiyauigyiu");
         //print result
-        System.out.println("Hello : " + resp);
-        regid=resp.toString();
+        System.out.println("Hello frm Login : " + resp.toString());
+        userRow=resp.toString();
         return new String(resp.toString());
     }
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        myDoLoginCallBack.doPostExecute(regid);
+        myDoLoginCallBack.doPostExecute(userRow);
 
     }
 

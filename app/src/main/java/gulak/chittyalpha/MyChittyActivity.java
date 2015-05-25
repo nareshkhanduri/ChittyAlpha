@@ -23,19 +23,31 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.IntentFilter;
 
 import gulak.util.ChittysAsyncTask;
+import gulak.util.RecivedChittyAsyncTask;
 import gulak.util.ReturnChittyAsyncTask;
 import gulak.util.RegisterAsyncTask;
 import gulak.util.ChittyRowAdapter;
 import gulak.util.ChittyRow;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import gulak.util.RecivedChittyAsyncTask.DoRecivedChittys;
 
-public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncTask.DoChittys{
+
+public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncTask.DoChittys, ReturnChittyAsyncTask.DoReturnChittys, DoRecivedChittys{
 
     private ListView mychittysList ;
 
 
     public ProgressDialog progressDialog;
+    public ProgressDialog progressReturnDialog;
     ChittysAsyncTask myAsyncTask;
     ReturnChittyAsyncTask pushTransactionAsync;
     TextView tvChitty;
@@ -44,14 +56,28 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
     String chittyVal=new String();
     String toPhone = new String("");
     String chittyId=new String("");
+    String userType=new String("");
+    SharedPreferences prefs;
     ArrayList<ChittyRow> values = new ArrayList<ChittyRow>();
+    Bundle bundle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_chitty);
-        Bundle bundle = getIntent().getExtras();
+         bundle = getIntent().getExtras();
+        //bundle = getIntent().getBundleExtra("INFO");
         regid = bundle.getString("regid");
         phNumber=bundle.getString("myPhone");
+        userType=bundle.getString("usertype");
+
+        prefs = getSharedPreferences("Parchi", 0);
+        //bundle = getIntent().getBundleExtra("INFO");
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString("CURRENT_ACTIVE", bundle.getString("myPhone"));
+        edit.commit();
+        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
+
+
          /*tvChitty=(TextView)findViewById(R.id.txtChittyDetails);
 
         System.out.println ( " check this out : " + chittyVal);
@@ -66,13 +92,35 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
         mychittysList = (ListView)findViewById(R.id.myChittysListView);
 
         // Create and populate a List of planet names.
-        progressDialog = ProgressDialog.show(MyChittyActivity.this, "Chitty App", "Getting Chittys...");
+        progressDialog = ProgressDialog.show(MyChittyActivity.this, "Parchi App", "Getting Parchi's...");
         myAsyncTask = new ChittysAsyncTask(MyChittyActivity.this);
         System.out.println("Get Chittys for " + phNumber);
-        myAsyncTask.execute(phNumber);
-
-
+        myAsyncTask.execute(phNumber,userType);
     }
+
+    private BroadcastReceiver onNotice= new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            System.out.println("Got new chitty .. Pls refersh UI : " +phNumber);
+            String str = intent.getStringExtra("msg");
+            String str1 = intent.getStringExtra("fromPhone");
+            String str2 = intent.getStringExtra("toPhone");
+            String str3 = intent.getStringExtra("chittyVal");
+            System.out.println("Got new chitty .. Pls refersh UI : " +str2);
+            RecivedChittyAsyncTask recivedChittyAsyncTask = new RecivedChittyAsyncTask(MyChittyActivity.this);
+            recivedChittyAsyncTask.execute(phNumber,userType);
+            progressDialog = ProgressDialog.show(MyChittyActivity.this, "Parchi App", "Getting Parchi's...");
+
+            if(str2.equals(bundle.getString("toPhone"))){
+
+                System.out.println("Got new chitty .. Pls refersh UI");
+            }
+
+
+
+        }
+    };
 
     public void showConfirmDialog(View view) {
         View v = (View) view.getParent();
@@ -89,16 +137,18 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
        LayoutInflater layoutInflater = LayoutInflater.from(MyChittyActivity.this);
         View promptView = layoutInflater.inflate(R.layout.recipentdetails, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MyChittyActivity.this);
-        alertDialogBuilder.setTitle("Confirm Transfering : " + chittyVal + " To : " +chittyVal);
+        alertDialogBuilder.setTitle("Redeem : " + chittyVal + " From : " +toPhone);
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Toast.makeText(getApplicationContext(), "Transfering" , Toast.LENGTH_SHORT).show();
-                        ReturnChittyAsyncTask rc = new ReturnChittyAsyncTask();
+                        ReturnChittyAsyncTask rc = new ReturnChittyAsyncTask(MyChittyActivity.this);
+                        progressReturnDialog = ProgressDialog.show(MyChittyActivity.this, "Parchi App", "Transferring Parchis...");
+
                         try {
 
                             rc.execute(phNumber,toPhone,chittyVal,chittyId);
-                            Toast.makeText(getApplicationContext(), "done transfer" , Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Done transfer" , Toast.LENGTH_SHORT).show();
                             TextView myValText = (TextView)findViewById(R.id.textview);
                             myValText.setText("0");
 
@@ -169,8 +219,95 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
     }
 
     @Override
+    public String doPostReturn(String result) {
+        progressReturnDialog.dismiss();
+        JSONObject jo;
+        JSONArray jArray;
+        System.out.println("Got All Chittys" + result);
+        values.clear();
+        //ChittyRow[] values =null;
+        try {
+            StringBuffer sb =new StringBuffer("{\"chittyResults\":");
+            if(!result.isEmpty()&& result.length()>5)
+                sb.append(result);
+            else
+                sb.append("[{\"fromphone\":\"No Chittys\",\"chittyval\":\"0\",\"id\":\"0\",\"businessname\":\"0\",\"transactiontime\":\"0\"}]");
+
+            sb.append("}");
+            jo = new JSONObject(sb.toString());
+            jArray = jo.getJSONArray("chittyResults");
+            System.out.println("Got All Chittys " + jArray.length());
+            //values=new ChittyRow[jArray.length()];
+            for ( int i=0;i<jArray.length();i++) {
+                ChittyRow ro=new ChittyRow();
+                ro.setFromPhone(jArray.getJSONObject(i).getString("fromphone"));
+                ro.setChittyVal(jArray.getJSONObject(i).getString("chittyval"));
+                ro.setChittyId(jArray.getJSONObject(i).getString("id"));
+                ro.setBusinessname(jArray.getJSONObject(i).getString("businessname"));
+                ro.setTranstime(jArray.getJSONObject(i).getString("transactiontime"));
+                ro.setAtIndex(i);
+                values.add(ro);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        ChittyRowAdapter listAdapter = new ChittyRowAdapter(this, values);
+        //listAdapter = new ArrayAdapter<String>(this, R.layout.chittyrow, R.id.txtChittyDetails,chittyList);
+        // Set the ArrayAdapter as the ListView's adapter.
+        mychittysList.setAdapter( listAdapter );
+
+        return result;
+    }
+
+    @Override
     public String doPostExecute(String result) {
         progressDialog.dismiss();
+        JSONObject jo;
+        JSONArray jArray;
+        System.out.println("Got All Parchis" + result);
+
+        //ChittyRow[] values =null;
+        try {
+            StringBuffer sb =new StringBuffer("{\"chittyResults\":");
+            if(!result.isEmpty()&& result.length()>5)
+                sb.append(result);
+            else
+                sb.append("[{\"fromphone\":\"No Chittys\",\"chittyval\":\"0\",\"id\":\"0\",\"businessname\":\"0\",\"transactiontime\":\"0\"}]");
+
+
+            sb.append("}");
+            jo = new JSONObject(sb.toString());
+            jArray = jo.getJSONArray("chittyResults");
+            System.out.println("Got All Chittys " + jArray.length());
+            //values=new ChittyRow[jArray.length()];
+            for ( int i=0;i<jArray.length();i++) {
+                ChittyRow ro=new ChittyRow();
+                ro.setFromPhone(jArray.getJSONObject(i).getString("fromphone"));
+                ro.setChittyVal(jArray.getJSONObject(i).getString("chittyval"));
+                ro.setChittyId(jArray.getJSONObject(i).getString("id"));
+                ro.setBusinessname(jArray.getJSONObject(i).getString("businessname"));
+                ro.setTranstime(jArray.getJSONObject(i).getString("transactiontime"));
+                ro.setAtIndex(i);
+                values.add(ro);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        ChittyRowAdapter listAdapter = new ChittyRowAdapter(this, values);
+        //listAdapter = new ArrayAdapter<String>(this, R.layout.chittyrow, R.id.txtChittyDetails,chittyList);
+        // Set the ArrayAdapter as the ListView's adapter.
+        mychittysList.setAdapter( listAdapter );
+
+        return result;
+    }
+
+
+    @Override
+    public String doPostRecivedExecute(String result) {
+        progressDialog.dismiss();
+        values.clear();
+
+
         JSONObject jo;
         JSONArray jArray;
         System.out.println("Got All Chittys" + result);
@@ -181,7 +318,8 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
             if(!result.isEmpty()&& result.length()>5)
                 sb.append(result);
             else
-                sb.append("[{\"fromphone\":\"No\",\"chittyval\":\"Chittys\"}]");
+                sb.append("[{\"fromphone\":\"No Chittys\",\"chittyval\":\"0\",\"id\":\"0\"}]");
+
 
             sb.append("}");
             jo = new JSONObject(sb.toString());
@@ -205,5 +343,6 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
         mychittysList.setAdapter( listAdapter );
 
         return result;
+
     }
 }

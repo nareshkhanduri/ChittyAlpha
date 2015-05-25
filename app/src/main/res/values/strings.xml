@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">ChittyAlpha</string>
-
+    <string name="app_name">Parchi</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_login">Login</string>
     <string name="title_activity_register">Register</string>
-    <string name="title_activity_my_chitty">MyChittyActivity</string>
+    <string name="title_activity_my_chitty">Redeem Parchi </string>
+    <string name="title_activity_issued_parchi">Issued Parchis</string>
 </resources>

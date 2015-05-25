@@ -8,6 +8,37 @@ public class ChittyRow {
     String fromPhone;
     String chittyVal;
     String chittyId;
+    String businessname;
+    String transtime;
+    public String getBusinessname() {
+        return businessname;
+    }
+
+    public void setBusinessname(String businessname) {
+        this.businessname = businessname;
+    }
+
+
+
+    public String getTranstime() {
+        return transtime;
+    }
+
+    public void setTranstime(String transtime) {
+        this.transtime = transtime;
+    }
+
+
+
+    public String getToPhone() {
+        return toPhone;
+    }
+
+    public void setToPhone(String toPhone) {
+        this.toPhone = toPhone;
+    }
+
+    String toPhone;
     int atIndex;
 
     public int getAtIndex() {

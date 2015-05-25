@@ -39,6 +39,7 @@ import gulak.util.PushTransaction;
 import android.os.AsyncTask;
 import java.io.IOException;
 
+
 public class MainActivity extends ActionBarActivity {
 
 private ImageView tv;
@@ -55,6 +56,7 @@ private ImageView tv;
     String regid=new String();
     String phNumber=new String();
     String chittyVal=new String();
+    String userType=new String("");
     EditText toPhone;
     // This is Same as google his is the project number we got
     //from the API Console, as described in "Getting Started."
@@ -66,10 +68,12 @@ private ImageView tv;
         Bundle bundle = getIntent().getExtras();
         regid = bundle.getString("regid");
         phNumber=bundle.getString("myPhone");
+        userType=bundle.getString("usertype");
+        //GoogleApiClient
         System.out.println("Main Activity Got Regid from Bundle : " + regid);
         context = getApplicationContext();
         if(checkPlayServices())
-            Log.i("Chitty App" , " Got Play servces");
+            Log.i("CParchi App" , " Got Play servces");
         setContentView(R.layout.activity_main);
 
             if (regid.isEmpty()) {
@@ -98,7 +102,7 @@ private ImageView tv;
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder.setView(promptView);
         TextView chittyText = (TextView)findViewById(R.id.textview);
-        alertDialogBuilder.setTitle("Chitty Points : " + chittyText.getText());
+        alertDialogBuilder.setTitle("Issue " + chittyText.getText() + " Parchi Points");
         chittyVal= chittyText.getText().toString();
         toPhone=(EditText)promptView.findViewById(R.id.toPhone);
         //final EditText editText = (EditText) promptView.findViewById(R.id.editText2);
@@ -247,9 +251,10 @@ private ImageView tv;
     }
 
     private void openMyChitiys() {
-        Intent myChittysActivityIntent= new Intent(MainActivity.this,MyChittyActivity.class);
+        Intent myChittysActivityIntent= new Intent(MainActivity.this,IssuedParchi.class);
         myChittysActivityIntent.putExtra("regid",regid);
         myChittysActivityIntent.putExtra("myPhone",phNumber);
+        myChittysActivityIntent.putExtra("usertype",userType);
         startActivity(myChittysActivityIntent);
     }
 

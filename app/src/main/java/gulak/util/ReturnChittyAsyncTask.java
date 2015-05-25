@@ -15,7 +15,18 @@ import javax.net.ssl.HttpsURLConnection;
 public class ReturnChittyAsyncTask extends AsyncTask<String, Integer, String> {
     private final String USER_AGENT = "Mozilla/5.0";
     StringBuffer resp=null;
+    DoReturnChittys myDoChittysCallBack;
+    String allrows;
     // HTTP POST request
+    public interface DoReturnChittys {
+
+        String doPostReturn(String result);
+    }
+
+    public ReturnChittyAsyncTask(DoReturnChittys callback) {
+        myDoChittysCallBack=callback;
+    }
+
     public  String doInBackground(String... params) {
 
         String fromPhone  = params[0];
@@ -67,9 +78,15 @@ public class ReturnChittyAsyncTask extends AsyncTask<String, Integer, String> {
         }
 
         System.out.println("Hello");
+         allrows=resp.toString();
         return resp.toString();
     }
 
+    @Override
+    protected void onPostExecute(String s) {
+        super.onPostExecute(s);
+        myDoChittysCallBack.doPostReturn(allrows);
 
+    }
 
 }

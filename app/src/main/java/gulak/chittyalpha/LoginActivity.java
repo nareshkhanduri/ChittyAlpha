@@ -16,12 +16,18 @@ import android.widget.Toast;
 import android.content.Intent;
 import android.widget.TextView;
 import android.app.ProgressDialog;
+import gulak.util.AppStatus;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
+import gulak.util.ChittyRow;
 import gulak.util.LoginAsyncTask;
 import gulak.util.LoginAsyncTask.DoLogin;
 
@@ -31,6 +37,7 @@ public class LoginActivity extends Activity implements DoLogin{
     private EditText inputUserPhone;
     private EditText inputPassword;
     public String data;
+    public String userType;
     public LoginAsyncTask myAsyncTask;
     public ProgressDialog progressDialog;
 
@@ -46,6 +53,8 @@ public class LoginActivity extends Activity implements DoLogin{
      * from the API Console, as described in "Getting Started."
      */
     String SENDER_ID = "922750456515";
+
+
 
     //public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
@@ -86,9 +95,16 @@ public class LoginActivity extends Activity implements DoLogin{
                     // Naresh this.progressd = ProgressDialog.show(getApplicationContext(), "Working..", "Downloading Data...", true, false);
                     //lh.execute(phNumber,password);
                     //progressDialog = ProgressDialog.show(LoginActivity.this, "Wait", "Downloading...");
-                    myAsyncTask = new LoginAsyncTask(LoginActivity.this);
-                    myAsyncTask.execute(phNumber,password);
-                    progressDialog = ProgressDialog.show(LoginActivity.this, "Chitty App", "Login In...");
+                    if (AppStatus.getInstance(getApplicationContext()).isOnline()){
+                        myAsyncTask = new LoginAsyncTask(LoginActivity.this);
+                        myAsyncTask.execute(phNumber,password);
+                        progressDialog = ProgressDialog.show(LoginActivity.this, "Parchi ", "Login In...");
+                    } else
+
+                        Toast.makeText(getApplicationContext(),
+                                "Not Network Access, Please check your Internet Connection", Toast.LENGTH_LONG)
+                                .show();
+
 
 
                 } else {
@@ -134,20 +150,56 @@ public class LoginActivity extends Activity implements DoLogin{
     }
 
     @Override
-    public void doPostExecute(String registrationId) {
+    public void doPostExecute(String userRow) {
         progressDialog.dismiss();
         //String regsid=new String();
-        if(registrationId!=null && !registrationId.isEmpty() )
-            regid=registrationId.trim();
-        System.out.println("Login Found Reg id from DB " + regid);
-        if (regid.isEmpty()) {
-            finish();
-        }
 
-        Intent mainActivityIntent= new Intent(LoginActivity.this,MainActivity.class);
-        mainActivityIntent.putExtra("regid",regid);
-        mainActivityIntent.putExtra("myPhone",phNumber);
-        startActivity(mainActivityIntent);
+
+        if (userRow.isEmpty()|| userRow.equalsIgnoreCase("0")) {
+            System.out.println("User Not found" + userRow);
+            Toast.makeText(getApplicationContext(),
+                    "Could not login, Pls check your password", Toast.LENGTH_LONG)
+                    .show();
+        }
+        else {
+            System.out.println("Login Found Reg id from DB " + userRow);
+
+            JSONObject jo;
+            JSONArray jArray;
+
+            try {
+                StringBuffer sb = new StringBuffer("{\"userResults\":[");
+                if (!userRow.isEmpty() && !(userRow.equalsIgnoreCase("0")))
+                    sb.append(userRow);
+                else
+                    sb.append("[{\"userphone\":\"No\",\"regid\":\"AZxcvvbbGT\"}]");
+
+                sb.append("]}");
+                jo = new JSONObject(sb.toString());
+                jArray = jo.getJSONArray("userResults");
+                System.out.println("Got users " + jArray.length());
+                //values=new ChittyRow[jArray.length()];
+                for (int i = 0; i < jArray.length(); i++) {
+                    //ChittyRow ro=new ChittyRow();
+                    regid = jArray.getJSONObject(i).getString("regid");
+                    userType = jArray.getJSONObject(i).getString("usertype");
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(" Reg id , User Type " + regid + "   :  " + userType);
+            Intent mainActivityIntent = null;
+            if (userType.equals("1"))
+                mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
+            if (userType.equals("0"))
+                mainActivityIntent = new Intent(LoginActivity.this, MyChittyActivity.class);
+
+            mainActivityIntent.putExtra("regid", regid);
+            mainActivityIntent.putExtra("myPhone", phNumber);
+            mainActivityIntent.putExtra("usertype", userType);
+            startActivity(mainActivityIntent);
+        }
     }
 
 

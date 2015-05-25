@@ -8,8 +8,15 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity"
-
     android:background="@drawable/background">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/regScrollView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" >
 
     <LinearLayout
         android:orientation="vertical"
@@ -32,44 +39,48 @@
             android:id="@+id/etRegPhNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#fffffefc"
             android:padding="10dp"
             android:hint="Phone Number"
             android:textColorHint="#cccccc"
-            />
+            android:inputType="number"
+            android:background="@drawable/round_corner"
+            android:singleLine="true" />
         <EditText
             android:id="@+id/etRegPass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#ffffffff"
             android:layout_marginTop="5dp"
             android:padding="10dp"
             android:hint="Password"
             android:textColorHint="#cccccc"
             android:password="true"
-            />
+            android:background="@drawable/round_corner"
+            android:singleLine="true" />
+
         <EditText
             android:id="@+id/etRegPass2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#ffffffff"
             android:layout_marginTop="5dp"
             android:padding="10dp"
             android:hint="Re-Enter Password"
             android:textColorHint="#cccccc"
             android:password="true"
+            android:background="@drawable/round_corner"
+            android:singleLine="true"
             />
         <EditText
             android:id="@+id/etChittyId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#ffffffff"
             android:layout_marginTop="5dp"
             android:padding="10dp"
             android:hint="Chitty ID"
             android:textColorHint="#cccccc"
             android:password="false"
-            />
+            android:background="@drawable/round_corner"
+            android:singleLine="true" />
+
         <Button
             android:id="@+id/btnReg"
             android:layout_width="match_parent"
@@ -123,4 +134,5 @@
 
 
 
+</ScrollView>
 </RelativeLayout>
