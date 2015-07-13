@@ -26,7 +26,7 @@ import gulak.util.IssuedParchiRowAdapter;
 import gulak.util.ReturnChittyAsyncTask;
 
 
-public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.DoChittys{
+public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.DoChittys,ReturnChittyAsyncTask.DoReturnChittys{
 
     private ListView myParchiList ;
 
@@ -74,6 +74,55 @@ public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.
     }
 
 
+    public void showIssuedConfirmDialog(View view) {
+        View v = (View) view.getParent();
+        tvChitty=(TextView)v.findViewById(R.id.txtParchiDetails);
+        //System.out.println(" check this out " + tvChitty.getTag().toString());
+        String indexofarray=tvChitty.getTag().toString();
+        int indexval=  Integer.parseInt(indexofarray);
+        ChittyRow cr= values.get(indexval);
+
+        toPhone=cr.getFromPhone();
+        chittyVal=cr.getChittyVal();
+        chittyId=cr.getChittyId();
+        System.out.println("tophone:" + toPhone +"chittyval:" +chittyVal);
+        LayoutInflater layoutInflater = LayoutInflater.from(IssuedParchi.this);
+        View promptView = layoutInflater.inflate(R.layout.recipentdetails, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IssuedParchi.this);
+        alertDialogBuilder.setTitle("Redeem : " + chittyVal + " From : " +toPhone);
+        alertDialogBuilder.setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(getApplicationContext(), "Transfering" , Toast.LENGTH_SHORT).show();
+                        ReturnChittyAsyncTask rc = new ReturnChittyAsyncTask(IssuedParchi.this);
+                        progressReturnDialog = ProgressDialog.show(IssuedParchi.this, "Parchi App", "Redemming Parchis...");
+
+                        try {
+
+                            rc.execute(phNumber,toPhone,chittyVal,chittyId);
+                            Toast.makeText(getApplicationContext(), "Done transfer" , Toast.LENGTH_SHORT).show();
+                            TextView myValText = (TextView)findViewById(R.id.textview);
+                            myValText.setText("0");
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        //editText.setText("Hello");
+                    }
+                })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create an alert dialog
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -108,7 +157,7 @@ public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.
     public void logout(){
         //Intent myChittysActivityIntent= new Intent(MyChittyActivity.this,LoginActivity.class);
         Intent i = getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         //myChittysActivityIntent.putExtra("regid","");
@@ -150,6 +199,49 @@ public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.
                 ro.setChittyVal(jArray.getJSONObject(i).getString("chittyval"));
                 ro.setToPhone(jArray.getJSONObject(i).getString("tophone"));
                 ro.setChittyId(jArray.getJSONObject(i).getString("id"));
+                ro.setAtIndex(i);
+                values.add(ro);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        IssuedParchiRowAdapter listAdapter = new IssuedParchiRowAdapter(this, values);
+        //listAdapter = new ArrayAdapter<String>(this, R.layout.chittyrow, R.id.txtChittyDetails,chittyList);
+        // Set the ArrayAdapter as the ListView's adapter.
+        myParchiList.setAdapter( listAdapter );
+
+        return result;
+    }
+
+
+
+    @Override
+    public String doPostReturn(String result) {
+        progressReturnDialog.dismiss();
+        JSONObject jo;
+        JSONArray jArray;
+        System.out.println("Got All Chittys" + result);
+        values.clear();
+        //ChittyRow[] values =null;
+        try {
+            StringBuffer sb =new StringBuffer("{\"chittyResults\":");
+            if(!result.isEmpty()&& result.length()>5)
+                sb.append(result);
+            else
+                sb.append("[{\"fromphone\":\"No Chittys\",\"chittyval\":\"0\",\"id\":\"0\",\"businessname\":\"0\",\"transactiontime\":\"0\"}]");
+
+            sb.append("}");
+            jo = new JSONObject(sb.toString());
+            jArray = jo.getJSONArray("chittyResults");
+            System.out.println("Got All Chittys " + jArray.length());
+            //values=new ChittyRow[jArray.length()];
+            for ( int i=0;i<jArray.length();i++) {
+                ChittyRow ro=new ChittyRow();
+                ro.setFromPhone(jArray.getJSONObject(i).getString("fromphone"));
+                ro.setChittyVal(jArray.getJSONObject(i).getString("chittyval"));
+                ro.setChittyId(jArray.getJSONObject(i).getString("id"));
+                ro.setBusinessname(jArray.getJSONObject(i).getString("businessname"));
+                ro.setTranstime(jArray.getJSONObject(i).getString("transactiontime"));
                 ro.setAtIndex(i);
                 values.add(ro);
             }
