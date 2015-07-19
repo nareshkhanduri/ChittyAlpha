@@ -33,6 +33,10 @@ public class ReturnChittyAsyncTask extends AsyncTask<String, Integer, String> {
         String toPhone = params[1];
         String chittyVal=params[2];
         String chittyId=params[3];
+        String real_phno=params[4];
+
+
+        System.out.println("values from" +real_phno);
         String lat ="54.32";
         String strlong ="73.34";
 
@@ -42,7 +46,7 @@ public class ReturnChittyAsyncTask extends AsyncTask<String, Integer, String> {
         URL obj = null;
         try {
             obj = new URL(url);
-            String urlParameters = "fromPhone=" + fromPhone + "&tophone="+ toPhone + "&lat=" + lat +"&long=" + strlong + "&chittyval=" + chittyVal + "&chittyId=" + chittyId;
+            String urlParameters = "fromPhone=" + fromPhone + "&tophone="+ real_phno + "&lat=" + lat +"&long=" + strlong + "&chittyval=" + chittyVal + "&chittyId=" + chittyId;
             System.out.println("\nSending 'POST' request to URL : " + urlParameters);
 
             HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
@@ -79,6 +83,7 @@ public class ReturnChittyAsyncTask extends AsyncTask<String, Integer, String> {
 
         System.out.println("Hello");
          allrows=resp.toString();
+        System.out.println("alll rows" + allrows);
         return resp.toString();
     }
 

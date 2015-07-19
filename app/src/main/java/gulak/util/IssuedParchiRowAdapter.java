@@ -35,7 +35,12 @@ public class IssuedParchiRowAdapter extends ArrayAdapter<ChittyRow> {
         TextView textView = (TextView) rowView.findViewById(R.id.txtParchiDetails);
         TextView textVal = (TextView) rowView.findViewById(R.id.txtParchiVal);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.parchiImageIcon);
-        textView.setText(data.get(position).getToPhone());
+
+        String ph_no=data.get(position).getToPhone();
+        ph_no = ph_no.substring(0, ph_no.length() - 3);
+        String final_phno=ph_no+"***";
+
+        textView.setText(final_phno);
         textVal.setText(data.get(position).getChittyVal());
         //System.out.println(" Values of Chitty Id :" +data.get(position).getChittyId() );
         /*Set Chitty Images

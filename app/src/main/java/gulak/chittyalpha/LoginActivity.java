@@ -48,6 +48,11 @@ public class LoginActivity extends Activity implements DoLogin{
     SharedPreferences prefs;
     Context context;
 
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
+
+    public static String PREFS_NAME="LOGIN_CREDENTIALS";
+
     /**
      * Substitute you own sender ID here. This is the project number you got
      * from the API Console, as described in "Getting Started."
@@ -60,13 +65,23 @@ public class LoginActivity extends Activity implements DoLogin{
     private static final String PROPERTY_APP_VERSION = "appVersion";
     static final String TAG = "ChittyApp";
     String regid;
-    String phNumber=new String();
+    private String phNumber,password;
     //public LoginHelper lh;
     boolean done=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        try {
+            CheckLogin();
+        }
+        catch(NullPointerException e)
+        {
+          System.out.println("inside catch");
+        }
+
+
         btnLogin=(Button) findViewById(R.id.btnSingIn);
         inputUserPhone=(EditText)findViewById(R.id.etUserName);
         inputPassword=(EditText)findViewById(R.id.etPass);
@@ -86,7 +101,7 @@ public class LoginActivity extends Activity implements DoLogin{
             //private ProgressDialog progressd = null;
             public void onClick(View view) {
                 phNumber = inputUserPhone.getText().toString();
-                String password = inputPassword.getText().toString();
+                 password = inputPassword.getText().toString();
 
                 // Check for empty data in the form
                 if (phNumber.trim().length() > 0 && password.trim().length() > 0) {
@@ -117,7 +132,28 @@ public class LoginActivity extends Activity implements DoLogin{
     });
     }
 
-        @Override
+    private void CheckLogin() {
+
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+        settings = getApplicationContext().getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+        String user_name = settings.getString("user_name", "empty");
+        String user_password = settings.getString("user_password", "empty");
+        String user_type=settings.getString("user_password", "empty");
+        String reg_id=settings.getString("user_password", "empty");
+
+
+        if(!user_name.equalsIgnoreCase("empty") && !user_password.equalsIgnoreCase("empty"))
+        {
+            System.out.println("inside checkin" + user_name + user_password);
+            Intent i=new Intent(LoginActivity.this,MainActivity.class);
+            i.putExtra("regid",settings.getString("reg_id", "empty"));
+            i.putExtra("usertype",settings.getString("user_type", "empty"));
+            i.putExtra("myphone",settings.getString("user_name", "empty"));
+            startActivity(i);
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_login, menu);
@@ -189,12 +225,24 @@ public class LoginActivity extends Activity implements DoLogin{
                 e.printStackTrace();
             }
             System.out.println(" Reg id , User Type " + regid + "   :  " + userType);
+
+            //preferences values
+            settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+            editor = settings.edit();
+            editor.putString("user_name", phNumber);
+            editor.putString("user_password", password);
+            editor.commit();
+
+
+
+
             Intent mainActivityIntent = null;
             if (userType.equals("1"))
                 mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
+            editor.putString("user_type", userType).commit();
             if (userType.equals("0"))
                 mainActivityIntent = new Intent(LoginActivity.this, MyChittyActivity.class);
-
+            editor.putString("reg_id",regid).commit();
             mainActivityIntent.putExtra("regid", regid);
             mainActivityIntent.putExtra("myPhone", phNumber);
             mainActivityIntent.putExtra("usertype", userType);

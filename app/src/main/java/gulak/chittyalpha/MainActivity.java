@@ -48,6 +48,9 @@ private ImageView tv;
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
+
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
     SharedPreferences prefs;
@@ -259,11 +262,25 @@ private ImageView tv;
     }
 
     public void logout(){
+
+        ClearPreference();
+
+
         Intent myChittysActivityIntent= new Intent(MainActivity.this,LoginActivity.class);
         myChittysActivityIntent.putExtra("regid","");
         myChittysActivityIntent.putExtra("myPhone","");
         startActivity(myChittysActivityIntent);
 
+    }
+
+    private void ClearPreference() {
+        settings = getApplicationContext().getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+        editor = settings.edit();
+        editor.putString("user_name", "empty");
+        editor.putString("user_password", "empty");
+        editor.putString("user_type", "empty");
+        editor.putString("reg_id", "empty");
+        editor.commit();
     }
 
     /**
@@ -300,5 +317,24 @@ private ImageView tv;
             // should never happen
             throw new RuntimeException("Could not get package name: " + e);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+        settings = getApplicationContext().getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+        String user_name = settings.getString("user_name", "empty");
+        String user_password = settings.getString("user_password", "empty");
+
+        if(!user_name.equalsIgnoreCase("empty") && !user_password.equalsIgnoreCase("empty"))
+        {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+
     }
 }

@@ -6,10 +6,20 @@ package gulak.util;
 public class ChittyRow {
 
     String fromPhone;
+
+    public String getRealph_no() {
+        return realph_no;
+    }
+
+    public void setRealph_no(String realph_no) {
+        this.realph_no = realph_no;
+    }
+
     String chittyVal;
     String chittyId;
     String businessname;
     String transtime;
+    String realph_no;
     public String getBusinessname() {
         return businessname;
     }

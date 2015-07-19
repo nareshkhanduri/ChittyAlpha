@@ -60,6 +60,10 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
     SharedPreferences prefs;
     ArrayList<ChittyRow> values = new ArrayList<ChittyRow>();
     Bundle bundle;
+
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -203,14 +207,34 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
 
     public void logout(){
         //Intent myChittysActivityIntent= new Intent(MyChittyActivity.this,LoginActivity.class);
-        Intent i = getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+
+
+        ClearPreference();
+      /*  Intent i = getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         //myChittysActivityIntent.putExtra("regid","");
         //myChittysActivityIntent.putExtra("myPhone","");
         startActivity(i);
+        */
 
+        Intent myChittysActivityIntent= new Intent(MyChittyActivity.this,LoginActivity.class);
+        myChittysActivityIntent.putExtra("regid","");
+        myChittysActivityIntent.putExtra("myPhone","");
+        startActivity(myChittysActivityIntent);
+
+
+    }
+
+    private void ClearPreference() {
+        settings = getApplicationContext().getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+        editor = settings.edit();
+        editor.putString("user_name", "empty");
+        editor.putString("user_password", "empty");
+        editor.putString("user_type", "empty");
+        editor.putString("reg_id", "empty");
+        editor.commit();
     }
 
     @Override
@@ -282,11 +306,13 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
             //values=new ChittyRow[jArray.length()];
             for ( int i=0;i<jArray.length();i++) {
                 ChittyRow ro=new ChittyRow();
+                ro.setRealph_no(jArray.getJSONObject(i).getString("fromphone"));
                 ro.setFromPhone(jArray.getJSONObject(i).getString("fromphone"));
                 ro.setChittyVal(jArray.getJSONObject(i).getString("chittyval"));
                 ro.setChittyId(jArray.getJSONObject(i).getString("id"));
                 ro.setBusinessname(jArray.getJSONObject(i).getString("businessname"));
                 ro.setTranstime(jArray.getJSONObject(i).getString("transactiontime"));
+
                 ro.setAtIndex(i);
                 values.add(ro);
             }
@@ -343,6 +369,25 @@ public class MyChittyActivity extends ActionBarActivity implements ChittysAsyncT
         mychittysList.setAdapter( listAdapter );
 
         return result;
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+        settings = getApplicationContext().getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+        String user_name = settings.getString("user_name", "empty");
+        String user_password = settings.getString("user_password", "empty");
+
+        if(!user_name.equalsIgnoreCase("empty") && !user_password.equalsIgnoreCase("empty"))
+        {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
 
     }
 }

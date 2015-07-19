@@ -42,6 +42,7 @@ public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.
     String chittyVal=new String();
     String toPhone = new String("");
     String chittyId=new String("");
+    String real_phno="";
     ArrayList<ChittyRow> values = new ArrayList<ChittyRow>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +86,10 @@ public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.
         toPhone=cr.getFromPhone();
         chittyVal=cr.getChittyVal();
         chittyId=cr.getChittyId();
-        System.out.println("tophone:" + toPhone +"chittyval:" +chittyVal);
+
+        real_phno=cr.getRealph_no();
+
+        System.out.println("tophone:" + toPhone +"chittyval:" +chittyVal+real_phno);
         LayoutInflater layoutInflater = LayoutInflater.from(IssuedParchi.this);
         View promptView = layoutInflater.inflate(R.layout.recipentdetails, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IssuedParchi.this);
@@ -99,7 +103,7 @@ public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.
 
                         try {
 
-                            rc.execute(phNumber,toPhone,chittyVal,chittyId);
+                            rc.execute(phNumber,toPhone,chittyVal,chittyId,real_phno);
                             Toast.makeText(getApplicationContext(), "Done transfer" , Toast.LENGTH_SHORT).show();
                             TextView myValText = (TextView)findViewById(R.id.textview);
                             myValText.setText("0");
@@ -195,6 +199,7 @@ public class IssuedParchi extends ActionBarActivity implements ChittysAsyncTask.
             //values=new ChittyRow[jArray.length()];
             for ( int i=0;i<jArray.length();i++) {
                 ChittyRow ro=new ChittyRow();
+                ro.setRealph_no(jArray.getJSONObject(i).getString("tophone"));
                 ro.setFromPhone(jArray.getJSONObject(i).getString("fromphone"));
                 ro.setChittyVal(jArray.getJSONObject(i).getString("chittyval"));
                 ro.setToPhone(jArray.getJSONObject(i).getString("tophone"));

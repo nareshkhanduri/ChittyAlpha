@@ -79,6 +79,7 @@ public class LoginAsyncTask extends AsyncTask<String, Integer, String> {
                         new InputStreamReader(con.getInputStream()));
                 String inputLine;
                 resp = new StringBuffer();
+                System.out.println("response val"+ resp.toString());
 
                 while ((inputLine = in.readLine()) != null) {
                     resp.append(inputLine);
